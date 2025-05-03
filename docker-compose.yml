@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  wallet-db:
+    image: postgres:latest
+    container_name: wallet-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 10031998
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - my-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wallet_user -d wallets"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  config-server:
+    image: bellsoft/liberica-openjdk-debian:17.0.15
+    container_name: config-server
+    volumes:
+      - ./config-server/src/main/resources:/app/config-server
+      - ./config-server/target/config-server-0.0.1-SNAPSHOT.jar:/app/config-server/config-server-0.0.1-SNAPSHOT.jar
+    ports:
+      - "8888:8888"
+    environment:
+      - CONFIG_URI=/app/config-server/configs
+      - SERVER_PORT=8888
+    command: java -jar /app/config-server/config-server-0.0.1-SNAPSHOT.jar
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8888/actuator/health || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - my-network
+
+  app-wallet:
+    image: bellsoft/liberica-openjdk-debian:17.0.15
+    container_name: app-wallet
+    depends_on:
+      wallet-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    volumes:
+      - ./app-wallet/src/main/resources:/app/app-wallet
+      - ./app-wallet/target/app-wallet-0.0.1-SNAPSHOT.jar:/app/app-wallet/app-wallet-0.0.1-SNAPSHOT.jar
+    command:
+      - java
+      - -jar
+      - /app/app-wallet/app-wallet-0.0.1-SNAPSHOT.jar
+      - --spring.config.location=file:/app/app-wallet/application.yaml
+    ports:
+      - "8080:8080"
+    networks:
+      - my-network
+
+  app-wallet-reactive:
+    image: bellsoft/liberica-openjdk-debian:17.0.15
+    container_name: app-wallet-reactive
+    depends_on:
+      wallet-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    volumes:
+      - ./app-wallet-reactive/src/main/resources:/app/app-wallet-reactive
+      - ./app-wallet-reactive/target/app-wallet-reactive-0.0.1-SNAPSHOT.jar:/app/app-wallet-reactive/app-wallet-reactive-0.0.1-SNAPSHOT.jar
+    command:
+      - java
+      - -jar
+      - /app/app-wallet-reactive/app-wallet-reactive-0.0.1-SNAPSHOT.jar
+      - --spring.config.location=file:/app/app-wallet-reactive/application.yaml
+    ports:
+      - "8081:8081"
+    networks:
+      - my-network
+
+volumes:
+  postgres-data:
+
+networks:
+  my-network:
+    driver: bridge
+    name: my-network

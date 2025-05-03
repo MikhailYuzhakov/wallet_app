@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: ${CONFIG_URI:/media/yuzhakovmihail/DATA/my_wallet/config-server/src/main/resources/configs}
+          default-label: master
+          search-paths: '{application}'  # ищет файлы по имени приложения
+
+server:
+  port: ${SERVER_PORT:8888}

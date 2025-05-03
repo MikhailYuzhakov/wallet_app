@@ -1,0 +1,3 @@
+[submodule "config-server/src/main/resources/configs"]
+	path = config-server/src/main/resources/configs
+	url = https://github.com/MikhailYuzhakov/wallet_app_config.git

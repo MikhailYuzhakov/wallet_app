@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: app-wallet
+  config:
+    import: configserver:http://config-server:8888

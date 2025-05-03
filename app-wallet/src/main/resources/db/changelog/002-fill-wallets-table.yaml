@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002
+      author: yuzhakovmihail
+      changes:
+        - insert:
+            tableName: wallets
+            columns:
+              - column:
+                  name: uuid
+                  value: "e22522ff-b624-48b5-97d8-ab7d89d3d2f4"
+              - column:
+                  name: balance
+                  value: 1234
+        - insert:
+            tableName: wallets
+            columns:
+              - column:
+                  name: uuid
+                  value: "bded967f-5fe2-4582-98eb-88f54c90eaf6"
+              - column:
+                  name: balance
+                  value: 5678
+        - insert:
+            tableName: wallets
+            columns:
+              - column:
+                  name: uuid
+                  value: "e4409c13-b4bf-4f26-9374-e71df88ab487"
+              - column:
+                  name: balance
+                  value: 9012
+        - insert:
+            tableName: wallets
+            columns:
+              - column:
+                  name: uuid
+                  value: "5e9b9316-e434-4dfa-9474-e1e15ed83c72"
+              - column:
+                  name: balance
+                  value: 3456
